@@ -2,9 +2,23 @@
 <html lang="es" class="h-full bg-slate-900 text-slate-100">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>FlashRepaso - Repaso Espaciado Móvil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>FlashRepaso</title>
+
+  <!-- PWA & Mobile Web App Standalone Meta Tags -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FlashRepaso">
+  <meta name="theme-color" content="#020617">
   
+  <!-- App Icon for iOS & Android Home Screen -->
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3407/3407024.png">
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3407/3407024.png">
+
+  <!-- Web App Manifest embedded inline via Data URI -->
+  <link rel="manifest" href='data:application/manifest+json,{"name":"FlashRepaso","short_name":"FlashRepaso","start_url":".","display":"standalone","background_color":"#020617","theme_color":"#020617","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3407/3407024.png","sizes":"512x512","type":"image/png"}]}'>
+
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome Icons -->
@@ -44,6 +58,12 @@
     /* Touch optimization */
     button, a {
       -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Safe area for standalone mode */
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
     }
   </style>
 </head>

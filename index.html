@@ -123,17 +123,24 @@
         </div>
       </div>
 
-      <!-- Decks Section Header -->
-      <div class="flex items-center justify-between pt-2">
-        <h3 class="font-bold text-slate-200 text-sm tracking-wide">Mis Bloques de Estudio</h3>
-        <button onclick="app.showModal('addDeckModal')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center space-x-1 py-1 px-2 rounded-lg hover:bg-indigo-500/10 transition">
-          <i class="fa-solid fa-plus"></i>
-          <span>Nuevo Bloque</span>
-        </button>
+      <!-- Decks Section Header & Category Filter -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between pt-1">
+          <h3 class="font-bold text-slate-200 text-sm tracking-wide">Mis Categorías y Mazos</h3>
+          <button onclick="app.showModal('addDeckModal')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center space-x-1 py-1 px-2 rounded-lg hover:bg-indigo-500/10 transition">
+            <i class="fa-solid fa-plus"></i>
+            <span>Nuevo Mazo</span>
+          </button>
+        </div>
+
+        <!-- Filter bar by category -->
+        <div id="categoryFilterBar" class="flex space-x-1.5 overflow-x-auto pb-1 text-xs">
+          <!-- JS dynamic category pills -->
+        </div>
       </div>
 
-      <!-- Decks List Container -->
-      <div id="decksList" class="space-y-3">
+      <!-- Decks List Grouped By Category Container -->
+      <div id="decksList" class="space-y-5">
         <!-- Dynamic Deck Items JS rendered -->
       </div>
     </section>
@@ -236,7 +243,7 @@
       <!-- Filters & Deck Selector -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <div>
-          <label class="text-[10px] text-slate-400 font-semibold block mb-1 uppercase">Filtrar por Bloque</label>
+          <label class="text-[10px] text-slate-400 font-semibold block mb-1 uppercase">Filtrar por Mazo</label>
           <select id="filterDeckSelect" onchange="app.renderCardsList()" class="w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500">
             <!-- Dynamic Deck Options -->
           </select>
@@ -291,10 +298,10 @@
           <h4 class="text-xs font-bold">Generador de Tarjetas con IA</h4>
         </div>
         <p class="text-[11px] text-slate-300 leading-relaxed">
-          Usa nuestro prompt para pasarle tus apuntes a ChatGPT o Gemini y obtener un archivo JSON para importar directamente.
+          Usa nuestro prompt optimizado para pedirle a ChatGPT o Gemini que te genere tarjetas por tema (Vocabulario, Phrasal Verbs, False Friends, Gramática).
         </p>
         <button onclick="app.showModal('promptModal')" class="w-full bg-indigo-600/80 hover:bg-indigo-600 text-white font-semibold text-xs py-2 rounded-xl transition">
-          Ver / Copiar Prompt de IA
+          Ver / Copiar Prompts de IA
         </button>
       </div>
 
@@ -340,11 +347,11 @@
     </div>
   </nav>
 
-  <!-- MODAL: Añadir/Editar Bloque -->
+  <!-- MODAL: Añadir/Editar Mazo -->
   <div id="addDeckModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-md space-y-4 shadow-2xl">
       <div class="flex justify-between items-center">
-        <h3 id="deckModalTitle" class="text-sm font-bold text-white">Nuevo Bloque de Estudio</h3>
+        <h3 id="deckModalTitle" class="text-sm font-bold text-white">Nuevo Mazo de Estudio</h3>
         <button onclick="app.hideModal('addDeckModal')" class="text-slate-400 hover:text-white p-1">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
@@ -353,8 +360,20 @@
       <input type="hidden" id="editDeckId">
 
       <div>
-        <label class="text-[10px] text-slate-400 font-semibold uppercase block mb-1">Nombre del Bloque</label>
-        <input id="deckNameInput" type="text" placeholder="Ej: Vocabulario Inglés B2, Historia Tema 4..." class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500">
+        <label class="text-[10px] text-slate-400 font-semibold uppercase block mb-1">Categoría / Grupo General</label>
+        <input id="deckCategoryInput" type="text" placeholder="Ej: Inglés, Historia, Medicina..." list="categorySuggestions" class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500">
+        <datalist id="categorySuggestions">
+          <option value="Inglés"></option>
+          <option value="General"></option>
+          <option value="Oposiciones"></option>
+          <option value="Programación"></option>
+        </datalist>
+        <p class="text-[10px] text-slate-500 mt-1">Sirve para agrupar varios mazos juntos (ej: grupo "Inglés").</p>
+      </div>
+
+      <div>
+        <label class="text-[10px] text-slate-400 font-semibold uppercase block mb-1">Nombre del Mazo / Tema</label>
+        <input id="deckNameInput" type="text" placeholder="Ej: Travel & Airport (Viajes), Tema 4..." class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500">
       </div>
 
       <div>
@@ -383,25 +402,25 @@
       <input type="hidden" id="editCardId">
 
       <div>
-        <label class="text-[10px] text-slate-400 font-semibold uppercase block mb-1">Bloque / Mazo</label>
+        <label class="text-[10px] text-slate-400 font-semibold uppercase block mb-1">Mazo de Estudio</label>
         <select id="cardDeckSelect" class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500">
           <!-- Dynamic -->
         </select>
       </div>
 
       <div>
-        <label class="text-[10px] text-slate-400 font-semibold uppercase block mb-1">Anverso (Concepto / Pregunta / Palabra)</label>
-        <textarea id="cardFrontInput" rows="2" placeholder="Ej: Epistemología" class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl p-3 text-xs focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+        <label class="text-[10px] text-slate-400 font-semibold uppercase block mb-1">Anverso (Pregunta / Expresión / Palabra)</label>
+        <textarea id="cardFrontInput" rows="2" placeholder="Ej: To check in" class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl p-3 text-xs focus:outline-none focus:border-indigo-500 resize-none"></textarea>
       </div>
 
       <div>
-        <label class="text-[10px] text-slate-400 font-semibold uppercase block mb-1">Reverso (Definición / Respuesta / Traducción)</label>
-        <textarea id="cardBackInput" rows="3" placeholder="Ej: Rama de la filosofía que estudia el conocimiento científico..." class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl p-3 text-xs focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+        <label class="text-[10px] text-slate-400 font-semibold uppercase block mb-1">Reverso (Respuesta / Significado / Ejemplo)</label>
+        <textarea id="cardBackInput" rows="3" placeholder="Ej: Facturar o registrarse en aeropuerto/hotel. Ex: 'We need to check in two hours before'." class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl p-3 text-xs focus:outline-none focus:border-indigo-500 resize-none"></textarea>
       </div>
 
       <div>
-        <label class="text-[10px] text-slate-400 font-semibold uppercase block mb-1">Etiqueta (Opcional)</label>
-        <input id="cardTagInput" type="text" placeholder="Ej: Tema 1, Vocabulario..." class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500">
+        <label class="text-[10px] text-slate-400 font-semibold uppercase block mb-1">Etiqueta / Tipo (Opcional)</label>
+        <input id="cardTagInput" type="text" placeholder="Ej: Phrasal Verb, False Friend, Vocabulario, Gramática" class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500">
       </div>
 
       <div class="flex space-x-2 pt-2">
@@ -426,10 +445,10 @@
       <div>
         <label class="text-[10px] text-slate-400 font-semibold uppercase block mb-1">Formato de Entrada</label>
         <select id="importFormat" class="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 mb-2">
-          <option value="json">JSON ([{"front": "...", "back": "..."}])</option>
-          <option value="csv">Texto Separado por Coma / Guión (Front - Back)</option>
+          <option value="json">JSON ([{"front": "...", "back": "...", "tag": "..."}])</option>
+          <option value="csv">Texto Separado por Guión (Front - Back)</option>
         </select>
-        <textarea id="importText" rows="6" placeholder='Pega aquí el código o texto generado...' class="w-full bg-slate-950 border border-slate-800 text-slate-100 font-mono text-[11px] rounded-xl p-3 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+        <textarea id="importText" rows="6" placeholder='Pega aquí el código JSON o texto generado por la IA...' class="w-full bg-slate-950 border border-slate-800 text-slate-100 font-mono text-[11px] rounded-xl p-3 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
       </div>
 
       <div class="flex space-x-2 pt-1">
@@ -439,38 +458,47 @@
     </div>
   </div>
 
-  <!-- MODAL: Prompt para Generar Tarjetas con IA -->
+  <!-- MODAL: Prompts para Generar Tarjetas con IA -->
   <div id="promptModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-md space-y-3 shadow-2xl">
       <div class="flex justify-between items-center">
         <h3 class="text-sm font-bold text-white flex items-center space-x-2">
           <i class="fa-solid fa-robot text-indigo-400"></i>
-          <span>Prompt para Generar Tarjetas</span>
+          <span>Generador de Prompts IA</span>
         </h3>
         <button onclick="app.hideModal('promptModal')" class="text-slate-400 hover:text-white p-1">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
-      <p class="text-[11px] text-slate-300 leading-relaxed">
-        Copia este prompt, pégalo en ChatGPT/Gemini junto con tus temas o apuntes y te devolverá el formato JSON exacto listo para importar.
+      <!-- Tab Switcher for Prompt Type -->
+      <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
+        <button id="btnPromptEnglish" onclick="app.switchPromptTab('english')" class="w-1/2 py-1.5 rounded-lg bg-indigo-600 text-white transition">Inglés por Temas</button>
+        <button id="btnPromptGeneral" onclick="app.switchPromptTab('general')" class="w-1/2 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition">General / Apuntes</button>
+      </div>
+
+      <p id="promptDesc" class="text-[11px] text-slate-300 leading-relaxed">
+        Copia este prompt, cambia el tema (ej: 'Viajes', 'Restaurantes') y pégalo en ChatGPT/Gemini para obtener tarjetas clasificadas.
       </p>
 
       <div class="relative">
-        <pre id="promptText" class="bg-slate-950 border border-slate-800 text-slate-300 p-3 rounded-xl text-[10px] whitespace-pre-wrap font-mono max-h-48 overflow-y-auto">Actúa como un experto en educación. Analiza el siguiente texto/temario y genera tarjetas de estudio (flashcards) resumiendo los conceptos más importantes, definiciones o vocabulario clave.
+        <pre id="promptText" class="bg-slate-950 border border-slate-800 text-slate-300 p-3 rounded-xl text-[10px] whitespace-pre-wrap font-mono max-h-52 overflow-y-auto">Actúa como un profesor experto de inglés. Genera un conjunto de tarjetas de estudio (flashcards) para aprender inglés sobre el tema: [ESCRIBE AQUÍ EL TEMA, ej: Viajes y Aeropuertos].
 
-Devuélveme ÚNICAMENTE un array en código JSON válido sin explicaciones adicionales con este formato:
+Crea tarjetas mezclando en un único bloque:
+1. Vocabulario clave útil (palabras y frases).
+2. False Friends relacionados con el tema (si los hay).
+3. Phrasal Verbs contextualizados con este tema.
+4. Reglas gramaticales rápidas o expresiones fijas sobre el tema.
+
+Devuélveme ÚNICAMENTE un array en código JSON válido sin comentarios ni formato extra, en esta estructura:
 
 [
   {
-    "front": "Concepto o pregunta clara",
-    "back": "Definición concisa y directa",
-    "tag": "Tema 1"
+    "front": "Palabra, expresión o pregunta en inglés o español",
+    "back": "Traducción, explicación concisa y un ejemplo breve",
+    "tag": "Vocabulario / Phrasal Verb / False Friend / Gramática"
   }
-]
-
-Aquí están mis apuntes:
-[PEGA TUS APUNTES AQUÍ]</pre>
+]</pre>
       </div>
 
       <button onclick="app.copyPrompt()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs py-2.5 rounded-xl flex items-center justify-center space-x-2">
@@ -481,20 +509,21 @@ Aquí están mis apuntes:
   </div>
 
   <script>
-    /* FlashRepaso Single-File Mobile Engine */
+    /* FlashRepaso Single-File Mobile Engine with Categories */
     class FlashRepasoApp {
       constructor() {
         this.decks = JSON.parse(localStorage.getItem('fr_decks')) || [
           {
             id: 'deck_demo_1',
-            name: 'Conceptos Clave de Estudio',
+            category: 'Inglés',
+            name: 'Viajes & Aeropuertos (Travel)',
             dailyTarget: 10,
             cards: [
               {
                 id: 'c1',
-                front: '¿Qué es el Repaso Espaciado?',
-                back: 'Técnica de aprendizaje que consiste en repasar la información en intervalos de tiempo crecientes para fijarla en la memoria a largo plazo.',
-                tag: 'Método',
+                front: 'To check in',
+                back: 'Facturar / Registrarse. Ej: We must check in two hours before departure.',
+                tag: 'Phrasal Verb',
                 interval: 1,
                 repetition: 0,
                 easeFactor: 2.5,
@@ -502,9 +531,37 @@ Aquí están mis apuntes:
               },
               {
                 id: 'c2',
-                front: 'Efecto de Posición Serial',
-                back: 'Tendencia a recordar mejor los primeros y últimos elementos de una lista (Primacía y Reciente).',
-                tag: 'Psicología',
+                front: 'Embarrassed vs Pregnant',
+                back: '¡False Friend! Embarrassed = Avergonzado/a. Pregnant = Embarazada.',
+                tag: 'False Friend',
+                interval: 1,
+                repetition: 0,
+                easeFactor: 2.5,
+                nextReview: new Date().toISOString().split('T')[0]
+              },
+              {
+                id: 'c3',
+                front: 'Boarding pass',
+                back: 'Tarjeta de embarque.',
+                tag: 'Vocabulario',
+                interval: 1,
+                repetition: 0,
+                easeFactor: 2.5,
+                nextReview: new Date().toISOString().split('T')[0]
+              }
+            ]
+          },
+          {
+            id: 'deck_demo_2',
+            category: 'Inglés',
+            name: 'Trabajo & Entrevistas (Work)',
+            dailyTarget: 10,
+            cards: [
+              {
+                id: 'c4',
+                front: 'Resume / CV',
+                back: 'Curriculum vitae. Nota: Resume no significa "resumen" (que es Summary).',
+                tag: 'False Friend',
                 interval: 1,
                 repetition: 0,
                 easeFactor: 2.5,
@@ -520,6 +577,7 @@ Aquí están mis apuntes:
           lastStudyDate: null
         };
 
+        this.selectedCategoryFilter = 'all';
         this.currentDeck = null;
         this.studyQueue = [];
         this.currentCardIndex = 0;
@@ -530,6 +588,7 @@ Aquí están mis apuntes:
 
       init() {
         this.checkStreak();
+        this.renderCategoryFilterBar();
         this.renderDecks();
         this.renderCardsList();
         this.setupReminderChecker();
@@ -576,6 +635,7 @@ Aquí están mis apuntes:
         if (tab === 'decks') {
           document.getElementById('viewDecks').classList.remove('hidden');
           document.getElementById('tabDecks').className = "flex flex-col items-center justify-center py-1 text-indigo-400 font-semibold transition";
+          this.renderCategoryFilterBar();
           this.renderDecks();
         } else if (tab === 'cards') {
           document.getElementById('viewCards').classList.remove('hidden');
@@ -618,6 +678,37 @@ Aquí están mis apuntes:
         document.getElementById('streakCount').textContent = this.settings.streak || 0;
       }
 
+      renderCategoryFilterBar() {
+        const container = document.getElementById('categoryFilterBar');
+        if (!container) return;
+
+        const categories = Array.from(new Set(this.decks.map(d => d.category || 'General')));
+        
+        let html = `
+          <button onclick="app.setCategoryFilter('all')" class="px-3 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition ${this.selectedCategoryFilter === 'all' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-800 text-slate-400 hover:text-slate-200'}">
+            Todas (${this.decks.length})
+          </button>
+        `;
+
+        categories.forEach(cat => {
+          const count = this.decks.filter(d => (d.category || 'General') === cat).length;
+          const isActive = this.selectedCategoryFilter === cat;
+          html += `
+            <button onclick="app.setCategoryFilter('${this.escapeHtml(cat)}')" class="px-3 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition ${isActive ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-800 text-slate-400 hover:text-slate-200'}">
+              ${this.escapeHtml(cat)} (${count})
+            </button>
+          `;
+        });
+
+        container.innerHTML = html;
+      }
+
+      setCategoryFilter(cat) {
+        this.selectedCategoryFilter = cat;
+        this.renderCategoryFilterBar();
+        this.renderDecks();
+      }
+
       renderDecks() {
         const container = document.getElementById('decksList');
         container.innerHTML = '';
@@ -628,9 +719,9 @@ Aquí están mis apuntes:
           container.innerHTML = `
             <div class="text-center py-12 bg-slate-900/50 rounded-2xl border border-slate-800">
               <i class="fa-solid fa-folder-open text-3xl text-slate-600 mb-2"></i>
-              <p class="text-xs text-slate-400 font-medium">No tienes bloques de estudio aún.</p>
+              <p class="text-xs text-slate-400 font-medium">No tienes mazos de estudio aún.</p>
               <button onclick="app.showModal('addDeckModal')" class="mt-3 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-xl font-semibold">
-                Crear Mi Primer Bloque
+                Crear Mi Primer Mazo
               </button>
             </div>
           `;
@@ -638,69 +729,104 @@ Aquí están mis apuntes:
           return;
         }
 
-        this.decks.forEach(deck => {
-          const dueCards = this.getDueCards(deck);
-          const pendingToday = Math.min(dueCards.length, deck.dailyTarget || 15);
-          totalDueOverall += pendingToday;
+        // Calculate pending overall
+        this.decks.forEach(d => {
+          const due = this.getDueCards(d);
+          totalDueOverall += Math.min(due.length, d.dailyTarget || 15);
+        });
+        document.getElementById('totalPendingCount').textContent = totalDueOverall;
 
-          const card = document.createElement('div');
-          card.className = "bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-4 space-y-3 transition shadow-sm";
-          card.innerHTML = `
-            <div class="flex items-start justify-between">
-              <div>
-                <h4 class="font-bold text-slate-100 text-sm">${this.escapeHtml(deck.name)}</h4>
-                <p class="text-[11px] text-slate-400 mt-0.5">${deck.cards.length} tarjetas en total • Límite: ${deck.dailyTarget}/día</p>
-              </div>
-              <div class="flex items-center space-x-1">
-                <button onclick="app.openImportModal('${deck.id}')" class="p-1.5 text-slate-400 hover:text-indigo-400 text-xs" title="Importar tarjetas">
-                  <i class="fa-solid fa-file-import"></i>
-                </button>
-                <button onclick="app.editDeck('${deck.id}')" class="p-1.5 text-slate-400 hover:text-indigo-400 text-xs" title="Editar bloque">
-                  <i class="fa-solid fa-pen"></i>
-                </button>
-                <button onclick="app.deleteDeck('${deck.id}')" class="p-1.5 text-slate-400 hover:text-rose-400 text-xs" title="Eliminar bloque">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              </div>
-            </div>
+        // Group decks by category
+        const filteredDecks = this.selectedCategoryFilter === 'all' 
+          ? this.decks 
+          : this.decks.filter(d => (d.category || 'General') === this.selectedCategoryFilter);
 
-            <div class="flex items-center justify-between pt-1">
-              <div class="flex items-center space-x-2">
-                <span class="text-xs font-semibold ${pendingToday > 0 ? 'text-amber-400' : 'text-emerald-400'}">
-                  ${pendingToday > 0 ? `<i class="fa-solid fa-clock mr-1"></i>${pendingToday} pendientes hoy` : '<i class="fa-solid fa-circle-check mr-1"></i>Completado hoy'}
-                </span>
-              </div>
-              <button onclick="app.startReviewDeck('${deck.id}')" ${pendingToday === 0 ? 'disabled class="opacity-40 bg-slate-800 text-slate-400 text-xs px-3 py-1.5 rounded-xl font-semibold cursor-not-allowed"' : 'class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3.5 py-1.5 rounded-xl font-semibold transition shadow-md shadow-indigo-600/20 flex items-center space-x-1.5"'}>
-                <i class="fa-solid fa-play text-[10px]"></i>
-                <span>Repasar</span>
-              </button>
-            </div>
-          `;
-          container.appendChild(card);
+        const grouped = {};
+        filteredDecks.forEach(deck => {
+          const cat = deck.category || 'General';
+          if (!grouped[cat]) grouped[cat] = [];
+          grouped[cat].push(deck);
         });
 
-        document.getElementById('totalPendingCount').textContent = totalDueOverall;
+        Object.keys(grouped).forEach(catName => {
+          const catGroup = document.createElement('div');
+          catGroup.className = "space-y-2.5";
+
+          let groupCardsHtml = '';
+          grouped[catName].forEach(deck => {
+            const dueCards = this.getDueCards(deck);
+            const pendingToday = Math.min(dueCards.length, deck.dailyTarget || 15);
+
+            groupCardsHtml += `
+              <div class="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-4 space-y-3 transition shadow-sm">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <h4 class="font-bold text-slate-100 text-sm">${this.escapeHtml(deck.name)}</h4>
+                    <p class="text-[11px] text-slate-400 mt-0.5">${deck.cards.length} tarjetas en total • Límite: ${deck.dailyTarget}/día</p>
+                  </div>
+                  <div class="flex items-center space-x-1">
+                    <button onclick="app.openImportModal('${deck.id}')" class="p-1.5 text-slate-400 hover:text-indigo-400 text-xs" title="Importar tarjetas">
+                      <i class="fa-solid fa-file-import"></i>
+                    </button>
+                    <button onclick="app.editDeck('${deck.id}')" class="p-1.5 text-slate-400 hover:text-indigo-400 text-xs" title="Editar mazo">
+                      <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button onclick="app.deleteDeck('${deck.id}')" class="p-1.5 text-slate-400 hover:text-rose-400 text-xs" title="Eliminar mazo">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-1 border-t border-slate-800/60">
+                  <span class="text-xs font-semibold ${pendingToday > 0 ? 'text-amber-400' : 'text-emerald-400'}">
+                    ${pendingToday > 0 ? `<i class="fa-solid fa-clock mr-1"></i>${pendingToday} pendientes hoy` : '<i class="fa-solid fa-circle-check mr-1"></i>Completado hoy'}
+                  </span>
+                  <button onclick="app.startReviewDeck('${deck.id}')" ${pendingToday === 0 ? 'disabled class="opacity-40 bg-slate-800 text-slate-400 text-xs px-3 py-1.5 rounded-xl font-semibold cursor-not-allowed"' : 'class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3.5 py-1.5 rounded-xl font-semibold transition shadow-md shadow-indigo-600/20 flex items-center space-x-1.5"'}>
+                    <i class="fa-solid fa-play text-[10px]"></i>
+                    <span>Repasar</span>
+                  </button>
+                </div>
+              </div>
+            `;
+          });
+
+          catGroup.innerHTML = `
+            <div class="flex items-center space-x-2 text-xs font-bold text-slate-400 uppercase tracking-wider px-1">
+              <i class="fa-solid fa-folder text-indigo-400"></i>
+              <span>${this.escapeHtml(catName)}</span>
+              <span class="text-[10px] bg-slate-800 text-slate-400 font-normal px-2 py-0.5 rounded-full">${grouped[catName].length} mazos</span>
+            </div>
+            <div class="space-y-3">
+              ${groupCardsHtml}
+            </div>
+          `;
+
+          container.appendChild(catGroup);
+        });
       }
 
       saveDeck() {
+        const category = document.getElementById('deckCategoryInput').value.trim() || 'General';
         const name = document.getElementById('deckNameInput').value.trim();
         const limit = parseInt(document.getElementById('deckLimitInput').value) || 15;
         const editId = document.getElementById('editDeckId').value;
 
         if (!name) {
-          this.showToast('Introduce un nombre para el bloque', 'fa-circle-exclamation');
+          this.showToast('Introduce un nombre para el mazo', 'fa-circle-exclamation');
           return;
         }
 
         if (editId) {
           const deck = this.decks.find(d => d.id === editId);
           if (deck) {
+            deck.category = category;
             deck.name = name;
             deck.dailyTarget = limit;
           }
         } else {
           this.decks.push({
             id: 'deck_' + Date.now(),
+            category: category,
             name: name,
             dailyTarget: limit,
             cards: []
@@ -708,10 +834,12 @@ Aquí están mis apuntes:
         }
 
         this.saveData();
+        this.renderCategoryFilterBar();
         this.renderDecks();
         this.hideModal('addDeckModal');
-        this.showToast('Bloque guardado con éxito');
+        this.showToast('Mazo guardado con éxito');
 
+        document.getElementById('deckCategoryInput').value = '';
         document.getElementById('deckNameInput').value = '';
         document.getElementById('editDeckId').value = '';
       }
@@ -720,19 +848,21 @@ Aquí están mis apuntes:
         const deck = this.decks.find(d => d.id === id);
         if (!deck) return;
 
-        document.getElementById('deckModalTitle').textContent = 'Editar Bloque de Estudio';
+        document.getElementById('deckModalTitle').textContent = 'Editar Mazo de Estudio';
         document.getElementById('editDeckId').value = deck.id;
+        document.getElementById('deckCategoryInput').value = deck.category || 'General';
         document.getElementById('deckNameInput').value = deck.name;
         document.getElementById('deckLimitInput').value = deck.dailyTarget || 15;
         this.showModal('addDeckModal');
       }
 
       deleteDeck(id) {
-        if (confirm('¿Seguro que quieres eliminar este bloque y todas sus tarjetas?')) {
+        if (confirm('¿Seguro que quieres eliminar este mazo y todas sus tarjetas?')) {
           this.decks = this.decks.filter(d => d.id !== id);
           this.saveData();
+          this.renderCategoryFilterBar();
           this.renderDecks();
-          this.showToast('Bloque eliminado');
+          this.showToast('Mazo eliminado');
         }
       }
 
@@ -740,11 +870,11 @@ Aquí están mis apuntes:
         const cardDeckSelect = document.getElementById('cardDeckSelect');
         const filterDeckSelect = document.getElementById('filterDeckSelect');
         
-        let optionsHtml = this.decks.map(d => `<option value="${d.id}">${this.escapeHtml(d.name)}</option>`).join('');
+        let optionsHtml = this.decks.map(d => `<option value="${d.id}">${this.escapeHtml(d.category ? `[${d.category}] ` : '')}${this.escapeHtml(d.name)}</option>`).join('');
         
         if (cardDeckSelect) cardDeckSelect.innerHTML = optionsHtml;
         if (filterDeckSelect) {
-          filterDeckSelect.innerHTML = `<option value="all">Todos los Bloques</option>` + optionsHtml;
+          filterDeckSelect.innerHTML = `<option value="all">Todos los Mazos</option>` + optionsHtml;
         }
       }
 
@@ -811,7 +941,7 @@ Aquí están mis apuntes:
 
         const due = this.getDueCards(deck);
         if (due.length === 0) {
-          this.showToast('No hay tarjetas pendientes en este bloque hoy');
+          this.showToast('No hay tarjetas pendientes en este mazo hoy');
           return;
         }
 
@@ -956,6 +1086,7 @@ Aquí están mis apuntes:
       exitStudy() {
         document.getElementById('viewStudy').classList.add('hidden');
         document.getElementById('viewDecks').classList.remove('hidden');
+        this.renderCategoryFilterBar();
         this.renderDecks();
       }
 
@@ -965,7 +1096,7 @@ Aquí están mis apuntes:
           if (!card) return;
           const text = this.isFlipped ? card.back : card.front;
           const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = 'es-ES';
+          utterance.lang = 'en-US';
           window.speechSynthesis.speak(utterance);
         } else {
           this.showToast('Lectura de voz no soportada en este navegador', 'fa-circle-exclamation');
@@ -983,7 +1114,7 @@ Aquí están mis apuntes:
         this.decks.forEach(d => {
           if (filterDeckId === 'all' || d.id === filterDeckId) {
             d.cards.forEach(c => {
-              allCards.push({ ...c, deckName: d.name, deckId: d.id });
+              allCards.push({ ...c, deckName: d.name, deckId: d.id, category: d.category });
             });
           }
         });
@@ -1010,20 +1141,23 @@ Aquí están mis apuntes:
           item.className = "bg-slate-900 border border-slate-800 rounded-2xl p-3.5 flex flex-col space-y-2";
           item.innerHTML = `
             <div class="flex items-center justify-between text-[10px] text-slate-400">
-              <span class="bg-indigo-500/10 text-indigo-300 font-semibold px-2 py-0.5 rounded-full border border-indigo-500/20">${this.escapeHtml(card.deckName)}</span>
+              <span class="bg-indigo-500/10 text-indigo-300 font-semibold px-2 py-0.5 rounded-full border border-indigo-500/20">${this.escapeHtml(card.category ? card.category + ' • ' : '')}${this.escapeHtml(card.deckName)}</span>
               <span>Próximo repaso: ${card.nextReview || 'Hoy'}</span>
             </div>
             <div>
               <p class="font-bold text-slate-200 text-xs">${this.escapeHtml(card.front)}</p>
               <p class="text-slate-400 text-xs mt-1 leading-relaxed">${this.escapeHtml(card.back)}</p>
             </div>
-            <div class="flex justify-end space-x-2 pt-1 border-t border-slate-800/60">
-              <button onclick="app.editCard('${card.id}')" class="text-xs text-slate-400 hover:text-indigo-400 p-1">
-                <i class="fa-solid fa-pen"></i> Editar
-              </button>
-              <button onclick="app.deleteCard('${card.id}')" class="text-xs text-slate-400 hover:text-rose-400 p-1">
-                <i class="fa-solid fa-trash"></i> Eliminar
-              </button>
+            <div class="flex justify-between items-center pt-1 border-t border-slate-800/60">
+              <span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[9px] font-medium">${this.escapeHtml(card.tag || 'General')}</span>
+              <div class="flex space-x-2">
+                <button onclick="app.editCard('${card.id}')" class="text-xs text-slate-400 hover:text-indigo-400 p-1">
+                  <i class="fa-solid fa-pen"></i> Editar
+                </button>
+                <button onclick="app.deleteCard('${card.id}')" class="text-xs text-slate-400 hover:text-rose-400 p-1">
+                  <i class="fa-solid fa-trash"></i> Eliminar
+                </button>
+              </div>
             </div>
           `;
           container.appendChild(item);
@@ -1137,6 +1271,54 @@ Aquí están mis apuntes:
         }
       }
 
+      switchPromptTab(type) {
+        const btnEng = document.getElementById('btnPromptEnglish');
+        const btnGen = document.getElementById('btnPromptGeneral');
+        const promptText = document.getElementById('promptText');
+        const promptDesc = document.getElementById('promptDesc');
+
+        if (type === 'english') {
+          btnEng.className = "w-1/2 py-1.5 rounded-lg bg-indigo-600 text-white transition";
+          btnGen.className = "w-1/2 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition";
+          promptDesc.textContent = "Copia este prompt, cambia el tema (ej: 'Viajes', 'Restaurantes') y pégalo en ChatGPT/Gemini para obtener tarjetas clasificadas.";
+          promptText.innerText = `Actúa como un profesor experto de inglés. Genera un conjunto de tarjetas de estudio (flashcards) para aprender inglés sobre el tema: [ESCRIBE AQUÍ EL TEMA, ej: Viajes y Aeropuertos].
+
+Crea tarjetas mezclando en un único bloque:
+1. Vocabulario clave útil (palabras y frases).
+2. False Friends relacionados con el tema (si los hay).
+3. Phrasal Verbs contextualizados con este tema.
+4. Reglas gramaticales rápidas o expresiones fijas sobre el tema.
+
+Devuélveme ÚNICAMENTE un array en código JSON válido sin comentarios ni formato extra, en esta estructura:
+
+[
+  {
+    "front": "Palabra, expresión o pregunta en inglés o español",
+    "back": "Traducción, explicación concisa y un ejemplo breve",
+    "tag": "Vocabulario / Phrasal Verb / False Friend / Gramática"
+  }
+]`;
+        } else {
+          btnGen.className = "w-1/2 py-1.5 rounded-lg bg-indigo-600 text-white transition";
+          btnEng.className = "w-1/2 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition";
+          promptDesc.textContent = "Usa este prompt para cualquier asignatura o apuntes de texto general.";
+          promptText.innerText = `Actúa como un experto en educación. Analiza el siguiente texto/temario y genera tarjetas de estudio (flashcards) resumiendo los conceptos más importantes.
+
+Devuélveme ÚNICAMENTE un array en código JSON válido sin explicaciones adicionales:
+
+[
+  {
+    "front": "Concepto o pregunta clara",
+    "back": "Definición concisa y directa",
+    "tag": "Tema 1"
+  }
+]
+
+Aquí están mis apuntes:
+[PEGA TUS APUNTES AQUÍ]`;
+        }
+      }
+
       copyPrompt() {
         const promptText = document.getElementById('promptText').innerText;
         
@@ -1174,6 +1356,7 @@ Aquí están mis apuntes:
             if (Array.isArray(importedDecks)) {
               this.decks = importedDecks;
               this.saveData();
+              this.renderCategoryFilterBar();
               this.renderDecks();
               this.renderCardsList();
               this.showToast('Copia de seguridad restaurada');
